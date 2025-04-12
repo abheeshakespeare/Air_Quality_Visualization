@@ -45,15 +45,26 @@ Pollutant type detection
 Pollution average computation
 
 📈 Visualizations:
-State-wise Average Pollution – Bar chart of mean pollution per state
+## 📊 Visualizations
 
-Pollutant Type Distribution – Pie chart of pollutant types
+### 1. State-wise Average Pollution
+![State-wise Average Pollution](1.png)
 
-Maximum Pollution by Pollutant Type – Box plot
+### 2. Pollutant Type Distribution
+![Pollutant Type Distribution](2.png)
 
-City Pollution Heatmap – Pollution distribution across top cities
+### 3. Maximum Pollution by Pollutant Type
+![Max Pollution by Pollutant Type](3.png)
 
-Top Polluted Monitoring Stations – Horizontal bar & scatter plots by coordinates
+### 4. City Pollution Heatmap
+![City Pollution Heatmap](4.png)
+
+### 5. Top Polluted Monitoring Stations
+![Top Polluted Monitoring Stations](5.png)
+
+### 6. Monitoring Stations Scatter Map
+![Monitoring Station Scatter Map](6.png)
+
 
 📐 Statistical Analysis:
 T-Test between two states (Delhi vs Bihar)
