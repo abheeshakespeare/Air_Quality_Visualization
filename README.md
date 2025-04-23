@@ -1,5 +1,6 @@
 🏭 Air Quality Data Analysis in India
-This project analyzes India's air quality dataset using Python, with a focus on pollution levels across states, cities, and monitoring stations. It provides insights through rich visualizations and statistical testing.
+This project analyzes realtime India's air quality dataset using Python, with a focus on pollution levels across states, cities, and monitoring stations. It provides insights through rich visualizations and statistical testing.
+The dataset is dated to 5th of April 2025.
 
 📂 Dataset
 File Name: air_quality_india.csv
