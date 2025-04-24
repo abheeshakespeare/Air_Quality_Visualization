@@ -7,6 +7,7 @@ from scipy import stats
 # Set the style for visualizations
 plt.style.use('seaborn-v0_8-whitegrid')
 sns.set_palette("Set2")
+# Set the figure size
 plt.rcParams['figure.figsize'] = [12, 8]
 plt.rcParams['font.size'] = 12
 
