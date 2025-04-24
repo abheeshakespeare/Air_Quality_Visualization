@@ -13,7 +13,7 @@ plt.rcParams['font.size'] = 12
 
 # Load the dataset
 air_data = pd.read_csv('air_quality_india.csv')
-
+#strt
 
 # Basic EDA
 def basic_eda(data):
