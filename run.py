@@ -7,14 +7,13 @@ from scipy import stats
 # Set the style for visualizations
 plt.style.use('seaborn-v0_8-whitegrid')
 sns.set_palette("Set2")
-# Set the figure size
 plt.rcParams['figure.figsize'] = [12, 8]
 plt.rcParams['font.size'] = 12
 
 # Load the dataset
 air_data = pd.read_csv('air_quality_india.csv')
-#strt
-#1
+
+
 # Basic EDA
 def basic_eda(data):
     print("Dataset Info:")
@@ -34,7 +33,6 @@ def basic_eda(data):
 
 
 
-# Data cleaning function
 def clean_air_data(data):
     clean_data = data.copy()
     
@@ -42,27 +40,12 @@ def clean_air_data(data):
     numeric_cols = clean_data.select_dtypes(include=['float64', 'int64']).columns
     clean_data[numeric_cols] = clean_data[numeric_cols].fillna(clean_data[numeric_cols].mean())
     
-    # Create or identify pollutant_type column
-    if 'pollutant_type' not in clean_data.columns:
-        # Look for columns that might contain pollutant type information
-        potential_cols = ['pollutant_', 'pollutant', 'type', 'parameter']
-        for col in clean_data.columns:
-            if any(pc in col.lower() for pc in potential_cols):
-                clean_data['pollutant_type'] = clean_data[col]
-                break
-        else:
-            clean_data['pollutant_type'] = 'Unknown'
+    clean_data['pollutant_type'] = clean_data['pollutant_id']
     
-    # Create pollutant_avg column if it doesn't exist
-    if 'pollutant_avg' not in clean_data.columns:
-        # Find columns with numeric pollution values
-        value_columns = [col for col in clean_data.columns 
-                         if clean_data[col].dtype in ['int64', 'float64'] and 
-                         col not in ['id', 'latitude', 'longitude']]
-        
-        clean_data['pollutant_avg'] = clean_data[value_columns].mean(axis=1)
+    
     
     return clean_data
+
 
 # Clean the data
 clean_air_data = clean_air_data(air_data)
