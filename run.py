@@ -39,11 +39,9 @@ def clean_air_data(data):
     # Handle missing values for numeric columns
     numeric_cols = clean_data.select_dtypes(include=['float64', 'int64']).columns
     clean_data[numeric_cols] = clean_data[numeric_cols].fillna(clean_data[numeric_cols].mean())
-    
+    # Directly assign pollutant_type from pollutant_id column
     clean_data['pollutant_type'] = clean_data['pollutant_id']
-    
-    
-    
+
     return clean_data
 
 
@@ -63,11 +61,6 @@ def plot_state_pollution(data):
     plt.ylabel('Average Pollution Level', fontsize=14)
     plt.xticks(rotation=45, ha='right')
     plt.grid(axis='y', linestyle='--', alpha=0.7)
-    
-    # Add values on top of bars
-    for i, value in enumerate(state_averages.values):
-        ax.text(i, value + 1, f'{value:.1f}', ha='center', fontsize=10, fontweight='bold')
-    
     plt.tight_layout()
     plt.show()
 
@@ -86,7 +79,6 @@ def plot_pollutant_distribution(data):
     
     plt.tight_layout()
     plt.show()
-    
 
 # 3. Maximum Pollution by Pollutant Type
 def plot_max_pollution_by_type(data):
@@ -137,17 +129,12 @@ def plot_city_pollution(data):
 # 5. Top Polluted Monitoring Stations
 def plot_polluted_stations(data):
     # Get top 20 stations by pollution level
-    if 'city' in data.columns and 'state' in data.columns:
-        top_stations = data.groupby(['station', 'city', 'state'])['pollutant_avg'].mean().sort_values(ascending=False).head(20)
-        top_stations = top_stations.reset_index()
+    top_stations = data.groupby(['station', 'city', 'state'])['pollutant_avg'].mean().sort_values(ascending=False).head(20)
+    top_stations = top_stations.reset_index()
         
         # Create station labels with city and state
-        station_labels = [f"{station} ({city}, {state})" for station, city, state in 
+    station_labels = [f"{station} ({city}, {state})" for station, city, state in 
                          zip(top_stations['station'], top_stations['city'], top_stations['state'])]
-    else:
-        top_stations = data.groupby('station')['pollutant_avg'].mean().sort_values(ascending=False).head(20)
-        top_stations = top_stations.reset_index()
-        station_labels = top_stations['station']
     
     # Create colormap
     colors = sns.color_palette("YlOrRd", len(top_stations))
@@ -162,78 +149,34 @@ def plot_polluted_stations(data):
     plt.ylabel('Monitoring Station', fontsize=14)
     plt.grid(axis='x', linestyle='--', alpha=0.7)
     
-    # Add values at the end of bars
-    for i, value in enumerate(top_stations['pollutant_avg']):
-        ax.text(value + 1, i, f'{value:.1f}', va='center', fontsize=10, fontweight='bold')
-    
     plt.tight_layout()
     plt.show()
     
-    # Create a scatter plot of stations if latitude/longitude exist
-    if 'latitude' in data.columns and 'longitude' in data.columns:
-        plt.figure(figsize=(14, 10))
-        
-        # Create a dataframe with station details
-        group_cols = ['station']
-        if 'city' in data.columns:
-            group_cols.append('city')
-        if 'state' in data.columns:
-            group_cols.append('state')
-            
-        group_cols.extend(['latitude', 'longitude'])
-        
-        station_data = data.groupby(group_cols)['pollutant_avg'].mean().reset_index()
-        
-        # Create scatter plot
-        scatter = plt.scatter(station_data['longitude'], station_data['latitude'], 
-                             c=station_data['pollutant_avg'], cmap='YlOrRd', 
-                             s=station_data['pollutant_avg']*3, alpha=0.7, edgecolors='black')
-        
-        # Add colorbar
-        cbar = plt.colorbar(scatter)
-        cbar.set_label('Average Pollution Level', rotation=270, labelpad=20)
-        
-        # Add labels for top 10 most polluted stations
-        top_10 = station_data.sort_values('pollutant_avg', ascending=False).head(10)
-        for _, row in top_10.iterrows():
-            plt.annotate(row['station'], 
-                        (row['longitude'], row['latitude']),
-                        xytext=(5, 5), textcoords='offset points',
-                        bbox=dict(boxstyle="round", fc="w", ec="0.5", alpha=0.8),
-                        fontsize=8)
-        
-        plt.title('Monitoring Stations by Location and Pollution Level', fontsize=16, fontweight='bold')
-        plt.xlabel('Longitude', fontsize=14)
-        plt.ylabel('Latitude', fontsize=14)
-        plt.grid(True, linestyle='--', alpha=0.7)
-        
-        plt.tight_layout()
-        plt.show()
+    # Scatter plot using station coordinates
+    station_data = data.groupby(['station', 'city', 'state', 'latitude', 'longitude'])['pollutant_avg'].mean().reset_index()
+
+    plt.figure(figsize=(14, 10))
+    scatter = plt.scatter(
+        station_data['longitude'], station_data['latitude'],
+        c=station_data['pollutant_avg'], cmap='YlOrRd',
+        s=station_data['pollutant_avg'] * 3, alpha=0.7, edgecolors='black'
+    )
+    plt.colorbar(scatter, label='Average Pollution Level')
+
+    # Label top 10 most polluted stations
+    top_10 = station_data.sort_values('pollutant_avg', ascending=False).head(10)
+
+    plt.title('Monitoring Stations by Location and Pollution Level', fontsize=16, fontweight='bold')
+    plt.xlabel('Longitude', fontsize=14)
+    plt.ylabel('Latitude', fontsize=14)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
 
 def run_statistical_tests(data):
-    print("\n🔬 Running Statistical Tests:")
-
-    # 1. T-Test: Compare pollution between two states
-    state1 = 'Delhi'
-    state2 = 'Bihar'
+    print("\n🔬 Running Z - Test:")
     
-    if state1 in data['state'].unique() and state2 in data['state'].unique():
-        pollution_state1 = data[data['state'] == state1]['pollutant_avg']
-        pollution_state2 = data[data['state'] == state2]['pollutant_avg']
-        
-        t_stat, p_val = stats.ttest_ind(pollution_state1, pollution_state2, equal_var=False)
-        
-        print(f"\nT-Test between {state1} and {state2}:")
-        print(f"   T-statistic = {t_stat:.4f}")
-        print(f"   P-value = {p_val:.4f}")
-        if p_val < 0.05:
-            print("   → Statistically significant difference in pollution levels.")
-        else:
-            print("   → No significant difference found.")
-    else:
-        print(f"One or both states not found in the dataset: {state1}, {state2}")
-    
-    # 2. Z-Test: Compare city mean to overall mean
+    # Z-Test: Compare city mean to overall mean
     city = 'Patna'
     city_data = data[data['city'] == city]['pollutant_avg']
     overall_mean = data['pollutant_avg'].mean()
@@ -244,7 +187,7 @@ def run_statistical_tests(data):
         z_score = (city_data.mean() - overall_mean) / (overall_std / np.sqrt(sample_size))
         p_val = 2 * (1 - stats.norm.cdf(abs(z_score)))  # Two-tailed
         
-        print(f"\n📌 Z-Test for {city} vs overall pollution mean:")
+        print(f"\n Z-Test for {city} vs overall pollution mean:")
         print(f"   Z-score = {z_score:.4f}")
         print(f"   P-value = {p_val:.4f}")
         if p_val < 0.05:
